@@ -15,12 +15,28 @@ def apply_transform(image, scale, rotation, translation_x, translation_y, flip_h
     pad_size = min(image.shape[0], image.shape[1]) // 2
     image_new = np.zeros((pad_size*2+image.shape[0], pad_size*2+image.shape[1], 3), dtype=np.uint8) + np.array((255,255,255), dtype=np.uint8).reshape(1,1,3)
     image_new[pad_size:pad_size+image.shape[0], pad_size:pad_size+image.shape[1]] = image
+    
+    shift_x = image.shape[1] // 2 + pad_size
+    shift_y = image.shape[0] // 2 + pad_size
+    
     image = np.array(image_new)
     transformed_image = np.array(image)
 
     ### FILL: Apply Composition Transform 
     # Note: for scale and rotation, implement them around the center of the image （围绕图像中心进行放缩和旋转）
-
+    mat_shift_to_origin = np.array([[1, 0, -shift_x], [0, 1, -shift_y], [0, 0, 1]], dtype=np.float32)
+    mat_scale = np.array([[scale, 0, 0], [0, scale, 0], [0, 0, 1]], dtype=np.float32)
+    rot = np.deg2rad(rotation)
+    mat_rot = np.array([[np.cos(rot), -np.sin(rot), 0], [np.sin(rot), np.cos(rot), 0], [0, 0, 1]], dtype=np.float32)
+    mat_shift = np.array([[1, 0, translation_x], [0, 1, translation_y], [0, 0, 1]])
+    mat_shift_back = np.array([[1, 0, shift_x], [0, 1, shift_y], [0, 0, 1]], dtype=np.float32)
+    if flip_horizontal :
+        mirror_matrix = np.array([[-1, 0, 0], [0, 1, 0], [0, 0, 1]], dtype=np.float32)
+    else : 
+        mirror_matrix = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]], dtype=np.float32)
+    trans_mat = mat_shift_back @ mat_shift @ mat_rot @ mat_scale @ mirror_matrix @ mat_shift_to_origin
+    transformed_image = cv2.warpAffine(transformed_image, trans_mat[0 : 2, :], 
+                                           (transformed_image.shape[1], transformed_image.shape[0]),borderValue=(255,255,255))
     return transformed_image
 
 # Gradio Interface
