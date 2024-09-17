@@ -48,8 +48,43 @@ def point_guided_deformation(image, source_pts, target_pts, alpha=1.0, eps=1e-8)
         A deformed image.
     """
     
-    warped_image = np.array(image)
+    #warped_image = np.array(image)
+    warped_image = np.zeros(image.shape, dtype=np.uint8)
     ### FILL: 基于MLS or RBF 实现 image warping
+
+    DELTA = 1000.0
+
+    rows = source_pts.shape[0]
+    coef_mat = np.zeros((rows,rows), dtype=np.float32)
+    for i in range(rows):
+        for j in range(rows):
+            coef_mat[i, j] = 1.0 / (np.sum((source_pts[i]-source_pts[j]) ** 2) + DELTA)
+    
+    RBF_coef = np.linalg.solve(coef_mat, target_pts - source_pts)
+
+    for i in range(image.shape[0]):
+        for j in range(image.shape[1]):
+            point_coef = 1.0 / (np.sum((np.array([j, i]) - source_pts) ** 2, axis = 1) + DELTA)
+            offset = np.round(point_coef @ RBF_coef).astype(int)
+            target_pt = np.array([offset[1], offset[0]]) + np.array([i, j])
+            if target_pt[0] < image.shape[0] and target_pt[1] < image.shape[1] and target_pt[0] >= 0 and target_pt[1] >= 0:
+                warped_image[target_pt[0], target_pt[1], :] = image[i, j, :]
+
+    for i in range(image.shape[0]):
+        for j in range(image.shape[1]):
+            if warped_image[i, j].all() == 0:
+                sum = np.zeros((1,3), dtype=np.uint16)
+                cnt = 0
+                for dr in range(-1, 2):
+                    for dc in range(-1, 2):
+                        pr = i + dr
+                        pc = j + dc
+                        if pr >= 0 and pr < image.shape[0] and pc >= 0 and pc < image.shape[1] and warped_image[pr, pc].any() != 0:
+                            sum += warped_image[pr, pc]
+                            cnt += 1
+                if cnt > 0:
+                    warped_image[i, j] = sum / cnt 
+
 
     return warped_image
 
