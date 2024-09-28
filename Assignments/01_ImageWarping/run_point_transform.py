@@ -54,22 +54,41 @@ def point_guided_deformation(image, source_pts, target_pts, alpha=1.0, eps=1e-8)
 
     DELTA = 1000.0
 
-    rows = source_pts.shape[0]
-    coef_mat = np.zeros((rows,rows), dtype=np.float32)
-    for i in range(rows):
-        for j in range(rows):
-            coef_mat[i, j] = 1.0 / (np.sum((source_pts[i]-source_pts[j]) ** 2) + DELTA)
+    # rows = source_pts.shape[0]
+    # coef_mat = np.zeros((rows,rows), dtype=np.float32)
+    # for i in range(rows):
+    #     for j in range(rows):
+    #         coef_mat[i, j] = 1.0 / (np.sum((source_pts[i]-source_pts[j]) ** 2) + DELTA)
+    
+    distances_sq = np.sum((source_pts[:, np.newaxis] - source_pts[np.newaxis, :]) ** 2, axis=-1)
+    coef_mat = 1.0 / (distances_sq + DELTA)
     
     RBF_coef = np.linalg.solve(coef_mat, target_pts - source_pts)
 
-    for i in range(image.shape[0]):
-        for j in range(image.shape[1]):
-            point_coef = 1.0 / (np.sum((np.array([j, i]) - source_pts) ** 2, axis = 1) + DELTA)
-            offset = np.round(point_coef @ RBF_coef).astype(int)
-            target_pt = np.array([offset[1], offset[0]]) + np.array([i, j])
-            if target_pt[0] < image.shape[0] and target_pt[1] < image.shape[1] and target_pt[0] >= 0 and target_pt[1] >= 0:
-                warped_image[target_pt[0], target_pt[1], :] = image[i, j, :]
+    j_coords, i_coords = np.meshgrid(np.arange(image.shape[0]), np.arange(image.shape[1]))
+    points = np.flip(np.stack((j_coords.ravel(), i_coords.ravel()), axis=-1))
+    distances_sq = np.sum((points[:, np.newaxis, :] - source_pts) ** 2, axis=-1)
+    points = np.flip(points)
+    point_coef = 1.0 / (distances_sq + DELTA)
+    offset = np.flip(np.round(point_coef @ RBF_coef).astype(int))
+    tar_pts = offset + points
+    for pt1, pt2 in zip(points, tar_pts):
+        if pt2[0] < image.shape[0] and pt2[0] >=0 and pt2[1] < image.shape[1] and pt2[1] >= 0:
+            warped_image[pt2[0], pt2[1], :] = image[pt1[0], pt1[1], :]
 
+    # print(warped_image.shape)
+    # print(source_pts)
+    # print(target_pts)
+
+    # for j in range(image.shape[1]):
+    #     for i in range(image.shape[0]):
+    #         point_coef = 1.0 / (np.sum((np.array([j, i]) - source_pts) ** 2, axis = 1) + DELTA)
+    #         offset = np.round(point_coef @ RBF_coef).astype(int)
+    #         target_pt = np.array([offset[1], offset[0]]) + np.array([i, j])
+    #         if target_pt[0] < image.shape[0] and target_pt[1] < image.shape[1] and target_pt[0] >= 0 and target_pt[1] >= 0:
+    #             warped_image[target_pt[0], target_pt[1], :] = image[i, j, :]
+
+    # 填空
     for i in range(image.shape[0]):
         for j in range(image.shape[1]):
             if warped_image[i, j].all() == 0:
