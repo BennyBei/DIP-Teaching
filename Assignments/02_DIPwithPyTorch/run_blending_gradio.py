@@ -1,6 +1,8 @@
 import gradio as gr
 from PIL import ImageDraw
 import numpy as np
+import matplotlib.path as Path
+import torch.nn.functional as functional
 import torch
 
 # Initialize the polygon state
@@ -110,6 +112,12 @@ def create_mask_from_points(points, img_h, img_w):
     ### 0 indicates outside the Polygon.
     ### 255 indicates inside the Polygon.
 
+    path = Path.Path(points[:, ::-1])
+    i, j = np.meshgrid(np.arange(img_w), np.arange(img_h))
+    grid_points = np.vstack((j.ravel(), i.ravel())).T
+    inside_mask = path.contains_points(grid_points).reshape((img_h, img_w))
+    mask[inside_mask] = 255
+
     return mask
 
 # Calculate the Laplacian loss between the foreground and blended image
@@ -129,6 +137,27 @@ def cal_laplacian_loss(foreground_img, foreground_mask, blended_img, background_
     loss = torch.tensor(0.0, device=foreground_img.device)
     ### FILL: Compute Laplacian Loss with https://pytorch.org/docs/stable/generated/torch.nn.functional.conv2d.html.
     ### Note: The loss is computed within the masks.
+    # mask_fore=foreground_mask.squeeze().nonzero()
+    # mask_back=background_mask.squeeze().nonzero()
+
+    # filters = torch.tensor([[0, 1, 0],[1, -4, 1],[0, 1, 0]], dtype=torch.float32, device='cuda').unsqueeze(0).unsqueeze(0)
+    # filters = filters.repeat(3, 1, 1, 1)
+    # foreground_laplacian = functional.conv2d(foreground_img, filters, padding=1, groups=3)
+    # background_laplacian = functional.conv2d(blended_img, filters, padding=1, groups=3)
+
+    # loss = functional.mse_loss(foreground_laplacian[0, :, mask_fore[:, 0], mask_fore[:, 1]], 
+    #                            background_laplacian[0, :, mask_back[:, 0], mask_back[:, 1]])
+
+    filters = torch.tensor([[0, 1, 0], [1, -4, 1], [0, 1, 0]], device=foreground_img.device).float().unsqueeze(0).unsqueeze(0)
+    filters = filters.expand(1, 3, 3, 3)
+
+    laplacian_foreground = functional.conv2d(foreground_img, filters, padding=1)
+    laplacian_foreground = laplacian_foreground[foreground_mask.bool()].flatten()
+
+    laplacian_blended = functional.conv2d(blended_img, filters, padding=1)
+    laplacian_blended = laplacian_blended[background_mask.bool()].flatten()
+
+    loss = functional.mse_loss(laplacian_blended, laplacian_foreground)
 
     return loss
 
