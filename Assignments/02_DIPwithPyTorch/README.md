@@ -37,20 +37,12 @@ python train.py
 ## Results 
 ### Poisson Image Editing
 <center>
-    <img src = "./pics/fore1.png"
-        width = "20%">
-    <img src = "./pics/back1.png"
-        width = "20%">
-    <img src = "./pics/rst1.png"
-        width = "20%">
+    <img src = "./pics/one.png"
+        width = "80%">
 </center>
 <center>
-    <img src = "./pics/fore2.png"
-        width = "20%">
-    <img src = "./pics/back2.png"
-        width = "20%">
-    <img src = "./pics/rst2.png"
-        width = "20%">
+    <img src = "./pics/two.png"
+        width = "80%">
 </center>
 
 ### Point Guided Deformation:
