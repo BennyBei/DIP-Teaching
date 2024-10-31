@@ -45,6 +45,33 @@ python train.py
         width = "80%">
 </center>
 
-### Point Guided Deformation:
+### Pix2Pix:
+#### train_results
+<center>
+    <img src = "./Pix2Pix/train_results/epoch_795/result_1.png"
+        width = "80%">
+</center>
+<center>
+    <img src = "./Pix2Pix/train_results/epoch_795/result_2.png"
+        width = "80%">
+</center>
+<center>
+    <img src = "./Pix2Pix/train_results/epoch_795/result_5.png"
+        width = "80%">
+</center>
 
-https://github.com/user-attachments/assets/89760e28-b528-417d-b986-e554b2d00640
+#### val_results
+<center>
+    <img src = "./Pix2Pix/val_results/epoch_795/result_1.png"
+        width = "80%">
+</center>
+<center>
+    <img src = "./Pix2Pix/val_results/epoch_795/result_2.png"
+        width = "80%">
+</center>
+<center>
+    <img src = "./Pix2Pix/val_results/epoch_795/result_5.png"
+        width = "80%">
+</center>
+
+The results on the test set are clearly not as good as those on the training set.
