@@ -43,7 +43,6 @@ python train.py
         width = "20%">
     <img src = "./pics/rst1.png"
         width = "20%">
-    <br>
 </center>
 <center>
     <img src = "./pics/fore2.png"
@@ -52,7 +51,6 @@ python train.py
         width = "20%">
     <img src = "./pics/rst2.png"
         width = "20%">
-    <br>
 </center>
 
 ### Point Guided Deformation:
