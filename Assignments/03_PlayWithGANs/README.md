@@ -96,4 +96,4 @@ To start the DragGAN GUI, simply run:
 ```
 
 ### Results
-<video controls src="result_video.mp4" title="Title"></video>
+![alt text](tinywow_Video_2024-11-30_174256_70359351.gif)
