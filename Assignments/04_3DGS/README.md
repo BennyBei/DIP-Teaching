@@ -1,5 +1,38 @@
 # Assignment 4 - Implement Simplified 3D Gaussian Splatting
 
+### This is Bei's impletation of DIP assignment4
+
+### Requirements
+Based on enviroment and dataset used in homework3, we need to install 'colmap' and 'pytorch3d' further.
+
+To run this code:
+```cmd
+python mvs_with_colmap.py --data_dir data/chair
+python debug_mvs_by_projecting_pts.py --data_dir data/chair
+python train.py --colmap_dir data/chair --checkpoint_dir data/chair/checkpoints
+```
+
+### Results
+After 50 epochs:
+
+<img src="data\chair\checkpoints\debug_images\epoch_0050\r_49.png" alt="alt text" width="800">
+
+After 100 epochs:
+
+<img src="data\chair\checkpoints\debug_images\epoch_0100\r_49.png" alt="alt text" width="800">
+
+After 150 epochs:
+
+<img src="data\chair\checkpoints\debug_images\epoch_0150\r_49.png" alt="alt text" width="800">
+
+After 199 epochs:
+
+<img src="data\chair\checkpoints\debug_images\epoch_0199\r_49.png" alt="alt text" width="800">
+
+We can also view the resulting video(see .\\data\\chair\\checkpoints\\debug_rendering.mp4).
+
+---
+---
 This assignment covers a complete pipeline for reconstructing a 3D scene represented by 3DGS from multi-view images. The following steps use the [chair folder](data/chair); you can use any other folder by placing images/ in it.
 
 ### Resources:
